@@ -25,8 +25,8 @@ const startServer = async () => {
 
 startServer();
 
-process.on("unhandledRejection", (err) =>{
-  console.log("Unhandled Rejection Detected. Server is shutting down....", err);
+process.on("unhandledRejection", (error) =>{
+  console.log("Unhandled Rejection Detected. Server is shutting down....", error);
 
   if(server){
     server.close(() =>{
@@ -38,8 +38,8 @@ process.on("unhandledRejection", (err) =>{
 
 })
 
-process.on("uncaughtException", (err) =>{
-  console.log("Uncaught Exception Detected. Server is shutting down....", err);
+process.on("uncaughtException", (error) =>{
+  console.log("Uncaught Exception Detected. Server is shutting down....", error);
 
   if(server){
     server.close(() =>{
