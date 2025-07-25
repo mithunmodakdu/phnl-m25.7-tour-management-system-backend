@@ -5,13 +5,12 @@ import { validateRequest } from "../../middlewares/validateRequest";
 import AppError from "../../errorHelpers/appError";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { ERole } from "./user.interface";
+import { verifyToken } from "../../utils/jwt";
+import { envVars } from "../../config/env";
 
 const router = Router();
 
-router.post("/register", validateRequest(createUserZodSchema), UserControllers.createUser);
-
-
-router.get("/all-users", async(req: Request, res: Response, next: NextFunction)=>{
+const checkAuth = (...AuthRoles: string[]) => async(req: Request, res: Response, next: NextFunction)=>{
   try {
     const accessToken = req.headers.authorization;
 
@@ -19,10 +18,9 @@ router.get("/all-users", async(req: Request, res: Response, next: NextFunction)=
       throw new AppError(403, "No Access Token received.");
     }
 
-    const verifiedAccessToken = jwt.verify(accessToken, "myWebsiteSecret");
-    console.log(verifiedAccessToken);
+    const verifiedAccessToken = verifyToken(accessToken, envVars.JWT_ACCESS_SECRET);
    
-    if((verifiedAccessToken as JwtPayload).role !== ERole.ADMIN || ERole.SUPER_ADMIN){
+    if((verifiedAccessToken as JwtPayload).role !== ERole.ADMIN){
       throw new AppError(403, "You are not permitted to view this route");
     }
 
@@ -31,6 +29,11 @@ router.get("/all-users", async(req: Request, res: Response, next: NextFunction)=
   } catch (error) {
     next(error);
   }
-} , UserControllers.getAllUsers);
+} 
+
+router.post("/register", validateRequest(createUserZodSchema), UserControllers.createUser);
+
+
+router.get("/all-users", checkAuth("ADMIN", "SUPER_ADMIN"), UserControllers.getAllUsers);
 
 export const UserRoutes = router;
