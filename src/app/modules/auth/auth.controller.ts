@@ -5,6 +5,9 @@ import httpStatusCodes from "http-status-codes";
 import { AuthServices } from "./auth.service";
 import AppError from "../../errorHelpers/appError";
 import { setAuthCookie } from "../../utils/setAuthCookie";
+import { createUserTokens } from "../../utils/createUserTokens";
+import { envVars } from "../../config/env";
+import { JwtPayload } from "jsonwebtoken";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) =>{
@@ -41,7 +44,66 @@ const getNewAccessToken = catchAsync(async (req: Request, res: Response, next: N
 
 }) 
 
+const logout = catchAsync(async (req: Request, res: Response, next: NextFunction) =>{
+  
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax"
+  })
+
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax"
+
+  })
+  
+  sendResponse(res, {
+    statusCode: httpStatusCodes.OK,
+    success: true,
+    message: "User logged out successfully.",
+    data: null,
+  })
+
+}) 
+
+const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) =>{
+  const newPassword = req.body.newPassword;
+  const oldPassword = req.body.oldPassword;
+  const decodedToken = req.user;
+
+  await AuthServices.resetPassword(oldPassword, newPassword, decodedToken as JwtPayload ); 
+  
+  sendResponse(res, {
+    statusCode: httpStatusCodes.OK,
+    success: true,
+    message: "Password changed successfully.",
+    data: null,
+  })
+
+}) 
+
+const googleCallbackController= catchAsync(async (req: Request, res: Response, next: NextFunction) =>{
+  const user = req.user;
+  console.log(user)
+
+  if(!user){
+    throw new AppError(httpStatusCodes.NOT_FOUND, "User NOT Found");
+  }
+
+  const tokenInfo =  createUserTokens(user);
+
+  setAuthCookie(res, tokenInfo);
+  
+  res.redirect(envVars.FRONTEND_URL);
+
+}) 
+
 export const AuthControllers = {
   credentialsLogin,
-  getNewAccessToken
+  getNewAccessToken,
+  logout,
+  resetPassword,
+  googleCallbackController
 }
