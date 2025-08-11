@@ -7,7 +7,11 @@ import { ERole } from "./user.interface";
 
 const router = Router();
 
-router.post("/register", validateRequest(createUserZodSchema), UserControllers.createUser);
+router.post("/register",
+  //  validateRequest(createUserZodSchema), 
+   UserControllers.createUser
+  );
+
 router.get("/all-users", checkAuth(ERole.ADMIN, ERole.SUPER_ADMIN), UserControllers.getAllUsers);
 router.patch("/:id", checkAuth(...Object.values(ERole)), UserControllers.updateUser)
 
