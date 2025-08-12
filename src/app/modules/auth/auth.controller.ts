@@ -155,9 +155,11 @@ const googleCallbackController = catchAsync(
 
     setAuthCookie(res, tokenInfo);
 
+
     res.redirect(envVars.FRONTEND_URL);
   }
 );
+ 
 
 export const AuthControllers = {
   credentialsLogin,
