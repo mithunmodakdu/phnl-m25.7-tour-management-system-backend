@@ -3,6 +3,11 @@
 import { NextFunction, Request, Response } from "express";
 import { envVars } from "../config/env";
 import AppError from "../errorHelpers/appError";
+import { handleZodError } from "../errorHelpers/handleZodError";
+import { handleDuplicateError } from "../errorHelpers/handleDuplicateError";
+import { handleCastError } from "../errorHelpers/handleCastError";
+import { handleValidationError } from "../errorHelpers/handleValidationError";
+import { IErrorSources } from "../interfaces/error.interfaces";
 
 export const globalErrorHandler = (
   error: any,
@@ -10,59 +15,51 @@ export const globalErrorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  // console.log(error)
+
+  if(envVars.NODE_ENV === "development"){
+    console.log(error)
+  }
 
   let statusCode = 500;
   let message = `Something Went Wrong!!`;
-  const errorSources: any = [];
+  let errorSources: IErrorSources[] = [];
 
   // :::: Zod error ::::
   if (error.name === "ZodError") {
-    statusCode = 400;
-    message = "Zod Error";
-    // console.log(error.issues);
-    error.issues.forEach((issue: any) => {
-      errorSources.push({
-        path: issue.path[issue.path.length - 1],
-        message: issue.message,
-      });
-    });
+    const simplifiedError = handleZodError(error);
+    statusCode = simplifiedError.statusCode;
+    errorSources = simplifiedError.errorSources as IErrorSources[];
+    message = simplifiedError.message;
   }
 
-  // :::: Mongoose Duplicate error ::::
+  // :::: Duplicate error ::::
   else if (error.code === 11000) {
-    //  console.log("Duplicate error", error.message)
-    statusCode = 400;
-    // message = "Duplicate error occurred"
-    const duplicate = error.message.match(/"([^"]*)"/);
-    //  console.log(duplicate)
-    message = `${duplicate[1]} already exists.`;
+    const simplifiedError = handleDuplicateError(error);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
   }
 
   // :::: Mongoose CastError ::::
   else if (error.name === "CastError") {
-    statusCode = 400;
-    message = "Invalid MongoDB ObjectID. Please provide a valid ObjectID.";
+    const simplifiedError = handleCastError(error);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
   }
 
   // :::: Mongoose ValidationError ::::
   else if (error.name === "ValidationError") {
-    statusCode = 400;
-
-    const errors = Object.values(error.errors);
-    errors.forEach((errorObject: any) =>
-      errorSources.push({
-        path: errorObject.path,
-        message: errorObject.message,
-      })
-    );
-    //  console.log(errorSources);
-
-    message = "Validation Error";
-  } else if (error instanceof AppError) {
+    const simplifiedError = handleValidationError(error);
+    statusCode = simplifiedError.statusCode;
+    errorSources = simplifiedError.errorSources as IErrorSources[];
+    message = simplifiedError.message;
+  } 
+  
+  
+  else if (error instanceof AppError) {
     statusCode = error.statusCode;
     message = error.message;
-  } else if (error instanceof Error) {
+  } 
+  else if (error instanceof Error) {
     statusCode = 500;
     message = error.message;
   }
@@ -71,7 +68,7 @@ export const globalErrorHandler = (
     success: false,
     message,
     errorSources,
-    error,
+    error: envVars.NODE_ENV === "development"? error : null,
     stack: envVars.NODE_ENV === "development" ? error.stack : null,
   });
 };
