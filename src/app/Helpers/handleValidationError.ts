@@ -15,7 +15,8 @@ export const handleValidationError = (error: mongoose.Error.ValidationError): IG
     
     return {
       statusCode : 400,
-      errorSources,
-      message : "Validation Error"
+      message : "Validation Error",
+      errorSources
+      
     }
 }
