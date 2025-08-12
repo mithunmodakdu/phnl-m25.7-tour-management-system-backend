@@ -9,33 +9,33 @@ import { createNewAccessTokenWithRefreshToken, createUserTokens } from "../../ut
 import { JwtPayload } from "jsonwebtoken";
 import becryptjs from "bcryptjs";
 
-const credentialsLogin = async(payload: Partial<IUser>) =>{
-  const {email, password} = payload;
+// const credentialsLogin = async(payload: Partial<IUser>) =>{
+//   const {email, password} = payload;
 
-  const isUserExist = await User.findOne({email});
+//   const isUserExist = await User.findOne({email});
 
-  if(!isUserExist){
-    throw new AppError(httpStatusCodes.BAD_REQUEST, "Email does not exist");
-  }
+//   if(!isUserExist){
+//     throw new AppError(httpStatusCodes.BAD_REQUEST, "Email does not exist");
+//   }
 
-  const isPasswordMatched = await bcryptjs.compare(password as string, isUserExist.password as string);
+//   const isPasswordMatched = await bcryptjs.compare(password as string, isUserExist.password as string);
 
-  if(!isPasswordMatched){
-    throw new AppError(httpStatusCodes.BAD_REQUEST, "Incorrect password");
-  }
+//   if(!isPasswordMatched){
+//     throw new AppError(httpStatusCodes.BAD_REQUEST, "Incorrect password");
+//   }
 
-  const userTokens = createUserTokens(isUserExist);
+//   const userTokens = createUserTokens(isUserExist);
  
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {password: pass, ...rest} = isUserExist.toObject();
+//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//   const {password: pass, ...rest} = isUserExist.toObject();
 
-  return {
-    accessToken: userTokens.accessToken,
-    refreshToken: userTokens.refreshToken,
-    user: rest
-  }
-}
+//   return {
+//     accessToken: userTokens.accessToken,
+//     refreshToken: userTokens.refreshToken,
+//     user: rest
+//   }
+// }
 
 const getNewAccessToken = async(refreshToken: string) =>{
   const newAccessToken = await createNewAccessTokenWithRefreshToken(refreshToken);
@@ -66,7 +66,7 @@ const resetPassword = async(oldPassword: string, newPassword: string, decodedTok
 }
 
 export const AuthServices = {
-  credentialsLogin,
+  // credentialsLogin,
   getNewAccessToken,
   resetPassword
 }
