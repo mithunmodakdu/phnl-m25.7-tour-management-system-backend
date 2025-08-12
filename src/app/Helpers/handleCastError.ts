@@ -5,6 +5,6 @@ import { IGenericErrorResponse } from "../interfaces/error.interfaces"
 export const handleCastError = (error: mongoose.Error.CastError): IGenericErrorResponse =>{
   return {
     statusCode: 400,
-    message: "Invalid MongoDB ObjectID. Please provide a valid ObjectID."
+    message: "Cast Error"
   }
 }

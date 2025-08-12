@@ -15,7 +15,6 @@ const authProviderSchema = new Schema<IAuthProvider>(
 const userSchema = new Schema<IUser>(
   {
     name: { type: String, required: true },
-    age: Number,
     email: { type: String, required: true, unique: true },
     password: { type: String },
     role: {
@@ -33,7 +32,7 @@ const userSchema = new Schema<IUser>(
     isActive: {
       type: String,
       enum: Object.values(EIsActive),
-      default: EIsActive.ACTIVE,
+      default: EIsActive.ACTIVE
     },
     isVerified: {
       type: Boolean,

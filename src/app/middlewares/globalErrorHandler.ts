@@ -3,10 +3,10 @@
 import { NextFunction, Request, Response } from "express";
 import { envVars } from "../config/env";
 import AppError from "../errorHelpers/appError";
-import { handleZodError } from "../errorHelpers/handleZodError";
-import { handleDuplicateError } from "../errorHelpers/handleDuplicateError";
-import { handleCastError } from "../errorHelpers/handleCastError";
-import { handleValidationError } from "../errorHelpers/handleValidationError";
+import { handleZodError } from "../Helpers/handleZodError";
+import { handleDuplicateError } from "../Helpers/handleDuplicateError";
+import { handleCastError } from "../Helpers/handleCastError";
+import { handleValidationError } from "../Helpers/handleValidationError";
 import { IErrorSources } from "../interfaces/error.interfaces";
 
 export const globalErrorHandler = (
@@ -24,37 +24,39 @@ export const globalErrorHandler = (
   let message = `Something Went Wrong!!`;
   let errorSources: IErrorSources[] = [];
 
-  // :::: Zod error ::::
-  if (error.name === "ZodError") {
-    const simplifiedError = handleZodError(error);
-    statusCode = simplifiedError.statusCode;
-    errorSources = simplifiedError.errorSources as IErrorSources[];
-    message = simplifiedError.message;
-  }
-
+  
   // :::: Duplicate error ::::
-  else if (error.code === 11000) {
+  if (error.code === 11000) {
     const simplifiedError = handleDuplicateError(error);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
   }
 
-  // :::: Mongoose CastError ::::
+  // :::: Mongoose CastError/ ObjectId Error ::::
   else if (error.name === "CastError") {
     const simplifiedError = handleCastError(error);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
   }
 
+  // :::: Zod error ::::
+  else if (error.name === "ZodError") {
+    const simplifiedError = handleZodError(error);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources as IErrorSources[];
+  }
+
   // :::: Mongoose ValidationError ::::
   else if (error.name === "ValidationError") {
     const simplifiedError = handleValidationError(error);
     statusCode = simplifiedError.statusCode;
-    errorSources = simplifiedError.errorSources as IErrorSources[];
     message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources as IErrorSources[];
+    
   } 
-  
-  
+
+    
   else if (error instanceof AppError) {
     statusCode = error.statusCode;
     message = error.message;
@@ -68,7 +70,7 @@ export const globalErrorHandler = (
     success: false,
     message,
     errorSources,
-    error: envVars.NODE_ENV === "development"? error : null,
+    error: envVars.NODE_ENV === "development" ? error : null,
     stack: envVars.NODE_ENV === "development" ? error.stack : null,
   });
 };
