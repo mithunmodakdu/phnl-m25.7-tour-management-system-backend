@@ -4,10 +4,11 @@ import { checkAuth } from "../../middlewares/checkAuth";
 import { ERole } from "../user/user.interface";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { createTourTypeZodSchema, createTourZodSchema, updateTourTypeZodSchema } from "./tour.validation";
-import { TourServices } from "./tour.service";
+
 
 const router = Router();
 
+// :::: Tour Type ::::
 router.post("/create-tour-type", 
   checkAuth(ERole.SUPER_ADMIN, ERole.ADMIN),
   validateRequest(createTourTypeZodSchema),
@@ -19,7 +20,13 @@ router.patch("/tour-types/:id",
   validateRequest(updateTourTypeZodSchema),
   TourControllers.updateTourType
 )
+router.delete("/tour-types/:id", 
+  checkAuth(ERole.SUPER_ADMIN, ERole.ADMIN),
+  TourControllers.deleteTourType
+)
 
+
+// :::: Tour ::::
 router.post("/create", 
   checkAuth(ERole.SUPER_ADMIN, ERole.ADMIN),
   validateRequest(createTourZodSchema),
