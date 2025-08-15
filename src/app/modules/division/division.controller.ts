@@ -33,9 +33,37 @@ const getAllDivisions = catchAsync(
   }
 );
 
+const getSingleDivision = catchAsync(
+  async(req: Request, res: Response) =>{
+    const result = await DivisionServices.getSingleDivision(req.params.slug);
+
+    sendResponse(res, {
+      statusCode: httpStatusCodes.OK,
+      success: true,
+      message: "Division retrieved successfully.",
+      data: result
+    })
+  }
+);
+
+const updateDivision = catchAsync(
+  async(req: Request, res: Response) =>{
+    const result = await DivisionServices.updateDivision(req.params.id, req.body);
+
+    sendResponse(res, {
+      statusCode: httpStatusCodes.OK,
+      success: true,
+      message: "Division updated successfully.",
+      data: result
+    })
+  }
+); 
+
 
 
 export const DivisionControllers = {
   createDivision,
-  getAllDivisions
+  getAllDivisions,
+  getSingleDivision,
+  updateDivision
 }
