@@ -19,5 +19,9 @@ router.patch("/:id",
   validateRequest(updateDivisionZodSchema),
   DivisionControllers.updateDivision
 );
+router.delete("/:id",
+  checkAuth(ERole.SUPER_ADMIN, ERole.ADMIN),
+  DivisionControllers.deleteDivision
+);
 
 export const DivisionRoutes = router;
