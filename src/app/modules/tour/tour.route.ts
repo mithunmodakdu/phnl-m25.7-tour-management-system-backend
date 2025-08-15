@@ -38,5 +38,9 @@ router.patch("/:id",
   validateRequest(createTourZodSchema),
   TourControllers.updateTour
 );
+router.delete("/:id", 
+  checkAuth(ERole.SUPER_ADMIN, ERole.ADMIN),
+  TourControllers.deleteTour
+);
 
 export const TourRoutes = router;
