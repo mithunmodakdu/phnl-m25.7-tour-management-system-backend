@@ -30,3 +30,23 @@ export const createTourZodSchema = z.object(
     division: z.string()
   }
 );
+
+export const updateTourZodSchema = z.object(
+  {
+    title: z.string().optional(),
+    slug: z.string().optional(),
+    description: z.string().optional(),
+    location: z.string().optional(),
+    costFrom: z.number().optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    tourType: z.string().optional(),
+    included: z.array(z.string()).optional(),
+    excluded: z.array(z.string()).optional(),
+    amenities: z.array(z.string()).optional(),
+    tourPlan: z.array(z.string()).optional(),
+    maxGuests: z.number().optional(),
+    minAge: z.number().optional(),
+    division: z.string().optional()
+  }
+);
