@@ -5,6 +5,7 @@ import { sendResponse } from "../../utils/sendResponse";
 import httpStatusCodes from "http-status-codes";
 
 
+// :::: Tour Type ::::
 const createTourType = catchAsync(
   async(req: Request, res: Response) =>{
     const result = await TourServices.createTourType(req.body);
@@ -32,6 +33,20 @@ const getAllTourTypes = catchAsync(
   }
 );
 
+const updateTourType = catchAsync(
+  async(req: Request, res: Response) =>{
+    const result = await TourServices.updateTourType(req.params.id, req.body);
+    sendResponse(res, {
+      statusCode: httpStatusCodes.OK,
+      success: true,
+      message: "Tour type updated successfully.",
+      data: result
+    })
+  }
+);
+
+
+// :::: Tour ::::
 const createTour = catchAsync(
   async(req: Request, res: Response) =>{
     const result = await TourServices.createTour(req.body);
@@ -48,5 +63,6 @@ const createTour = catchAsync(
 export const TourControllers = {
   createTour,
   createTourType,
-  getAllTourTypes
+  getAllTourTypes,
+  updateTourType
 }
