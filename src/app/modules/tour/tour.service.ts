@@ -19,6 +19,10 @@ const createTourType = async (payload: ITourType) => {
   return tourType;
 };
 
+const getAllTourTypes = async() =>{
+  return await TourType.find();
+}
+
 const createTour = async (payload: ITour) => {
   const existingTour = await Tour.findOne({ title: payload.title });
 
@@ -36,5 +40,6 @@ const createTour = async (payload: ITour) => {
 
 export const TourServices = {
   createTour,
-  createTourType
+  createTourType,
+  getAllTourTypes
 };
