@@ -4,15 +4,15 @@ import { Division } from "./division.model";
 import httpStatusCodes from "http-status-codes";
 
 const createDivision = async (payload: IDivision) => {
-  const baseSlug = payload.name.toLowerCase().split(" ").join("-");
-  let slug = `${baseSlug}-division`;
+  // const baseSlug = payload.name.toLowerCase().split(" ").join("-");
+  // let slug = `${baseSlug}-division`;
 
-  let counter = 0;
-  while (await Division.exists({ slug })) {
-    slug = `${slug}-${counter++}`;
-  }
+  // let counter = 0;
+  // while (await Division.exists({ slug })) {
+  //   slug = `${slug}-${counter++}`;
+  // }
 
-  payload.slug = slug;
+  // payload.slug = slug;
 
   // const isDivisionExist = await Division.findOne({name: payload.name});
 
@@ -60,17 +60,17 @@ const updateDivision = async (id: string, payload: Partial<IDivision>) => {
     );
   }
 
-  if (payload.name) {
-    const baseSlug = payload.name.toLowerCase().split(" ").join("-");
-    let slug = `${baseSlug}-division`;
+  // if (payload.name) {
+  //   const baseSlug = payload.name.toLowerCase().split(" ").join("-");
+  //   let slug = `${baseSlug}-division`;
 
-    let counter = 0;
-    while (await Division.exists({ slug })) {
-      slug = `${slug}-${counter++}`;
-    }
+  //   let counter = 0;
+  //   while (await Division.exists({ slug })) {
+  //     slug = `${slug}-${counter++}`;
+  //   }
 
-    payload.slug = slug;
-  }
+  //   payload.slug = slug;
+  // }
 
   const updatedDivision = await Division.findByIdAndUpdate(id, payload, {
     new: true,
