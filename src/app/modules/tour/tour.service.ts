@@ -5,7 +5,6 @@ import httpStatusCodes from "http-status-codes";
 
 // :::: Tour Type ::::
 const createTourType = async (payload: ITourType) => {
-
   const existingTourType = await TourType.findOne({ name: payload.name });
 
   if (existingTourType) {
@@ -20,27 +19,28 @@ const createTourType = async (payload: ITourType) => {
   return tourType;
 };
 
-const getAllTourTypes = async() =>{
+const getAllTourTypes = async () => {
   return await TourType.find();
-}
+};
 
-const updateTourType = async(id: string, payload: ITourType) =>{
+const updateTourType = async (id: string, payload: ITourType) => {
   const existingTourType = await TourType.findById(id);
-  if(!existingTourType){
-    throw new AppError(httpStatusCodes.NOT_FOUND, "Tour type not found.")
+  if (!existingTourType) {
+    throw new AppError(httpStatusCodes.NOT_FOUND, "Tour type not found.");
   }
-  const updatedTourType = await TourType.findByIdAndUpdate(id, payload, {new: true});
+  const updatedTourType = await TourType.findByIdAndUpdate(id, payload, {
+    new: true,
+  });
   return updatedTourType;
-}
+};
 
-const deleteTourType = async(id: string) =>{
+const deleteTourType = async (id: string) => {
   const existingTourType = await TourType.findById(id);
-  if(!existingTourType){
+  if (!existingTourType) {
     throw new AppError(httpStatusCodes.NOT_FOUND, "This tour type not found");
   }
   return await TourType.findByIdAndDelete(id);
-}
-
+};
 
 // :::: Tour ::::
 const createTour = async (payload: ITour) => {
@@ -53,38 +53,61 @@ const createTour = async (payload: ITour) => {
     );
   }
 
+  const baseSlug = payload.title.toLowerCase().split(" ").join("-");
+  let slug = `${baseSlug}-division`;
+
+  let counter = 0;
+  while (await Tour.exists({ slug })) {
+    slug = `${slug}-${counter++}`;
+  }
+
+  payload.slug = slug;
+
   const tour = await Tour.create(payload);
 
   return tour;
 };
 
-const getAllTours = async() =>{
+const getAllTours = async () => {
   const tours = await Tour.find();
   const totalTours = await Tour.countDocuments();
   return {
     data: tours,
     meta: {
-      total: totalTours
+      total: totalTours,
+    },
+  };
+};
+
+const updateTour = async (id: string, payload: Partial<ITour>) => {
+  const existingTour = await Tour.findById(id);
+  if (!existingTour) {
+    throw new AppError(httpStatusCodes.NOT_FOUND, "This tour not found.");
+  }
+
+  if (payload.title) {
+    const baseSlug = payload.title.toLowerCase().split(" ").join("-");
+    let slug = `${baseSlug}-division`;
+
+    let counter = 0;
+    while (await Tour.exists({ slug })) {
+      slug = `${slug}-${counter++}`;
     }
-  }
-}
 
-const updateTour = async(id: string, payload: Partial<ITour>) =>{
-  const existingTour = await Tour.findById(id);
-  if(!existingTour){
-    throw new AppError(httpStatusCodes.NOT_FOUND, "This tour not found.")
+    payload.slug = slug;
   }
-  const updatedTour = await Tour.findByIdAndUpdate(id, payload, {new: true});
+
+  const updatedTour = await Tour.findByIdAndUpdate(id, payload, { new: true });
   return updatedTour;
-}
+};
 
-const deleteTour = async (id: string) =>{
+const deleteTour = async (id: string) => {
   const existingTour = await Tour.findById(id);
-  if(!existingTour){
-    throw new AppError(httpStatusCodes.NOT_FOUND, "This tour not found.")
+  if (!existingTour) {
+    throw new AppError(httpStatusCodes.NOT_FOUND, "This tour not found.");
   }
   return await Tour.findByIdAndDelete(id);
-}
+};
 
 export const TourServices = {
   createTour,
@@ -94,5 +117,5 @@ export const TourServices = {
   deleteTourType,
   getAllTours,
   updateTour,
-  deleteTour
+  deleteTour,
 };
