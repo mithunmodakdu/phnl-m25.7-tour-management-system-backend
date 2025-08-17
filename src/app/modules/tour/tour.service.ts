@@ -1,3 +1,4 @@
+import { Query } from "mongoose";
 import AppError from "../../errorHelpers/appError";
 import { excludeFields, tourSearchableFields } from "./tour.constant";
 import { ITour, ITourType } from "./tour.interface";
@@ -59,43 +60,103 @@ const createTour = async (payload: ITour) => {
   return tour;
 };
 
+class QueryBuilder<T> {
+  public modelQuery: Query<T[], T>;
+  public readonly query: Record<string, string>;
+
+  constructor(modelQuery: Query<T[], T>, query: Record<string, string>) {
+    this.modelQuery = modelQuery;
+    this.query = query;
+  }
+
+  
+  filter(): this {
+    const filter = { ...this.query };
+
+    for (const field of excludeFields) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete filter[field];
+    }
+
+    this.modelQuery = this.modelQuery.find(filter); //Tour.find().find(filter)
+
+    return this;
+  }
+
+  search(searchableFields: string[]): this {
+
+    const searchTerm = this.query.searchTerm || "";
+
+    const searchQuery = {
+      $or: searchableFields.map((field) => ({
+        [field]: { $regex: searchTerm, $options: "i" },
+      })),
+    };
+
+    this.modelQuery = this.modelQuery.find(searchQuery);
+
+    return this;
+  }
+}
+
+// const getAllTours = async (query: Record<string, string>) => {
+//   const filter = query;
+//   const searchTerm = query.searchTerm || "";
+//   const sortTerm = query.sortTerm || "-createdAt";
+//   const fieldsName = query.fieldsName?.split(",").join(" ") || "";
+//   const page = Number(query.page) || 1;
+//   const limit = Number(query.limit) || 10;
+//   const skip = (page-1)*limit;
+
+//   for(const field of excludeFields){
+//     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+//     delete filter[field]
+//   }
+
+//   const searchQuery = {
+//     $or: tourSearchableFields.map(field => ({
+//     [field]: {$regex: searchTerm, $options: "i"}
+//   }))
+//   }
+
+//   const tours = await Tour.find(searchQuery).find(filter).sort(sortTerm).select(fieldsName).skip(skip).limit(limit);
+
+//   const totalTours = await Tour.countDocuments();
+
+//   const totalPage = Math.ceil(totalTours/limit);
+
+//   const meta = {
+//     page: page,
+//     limit: limit,
+//     total: totalTours,
+//     totalPage: totalPage
+//   }
+
+//   return {
+//     data: tours,
+//     meta: meta
+//   };
+// };
+
 const getAllTours = async (query: Record<string, string>) => {
-  const filter = query;
-  const searchTerm = query.searchTerm || "";
-  const sortTerm = query.sortTerm || "-createdAt";
-  const fieldsName = query.fieldsName?.split(",").join(" ") || "";
-  const page = Number(query.page) || 1;
-  const limit = Number(query.limit) || 10;
-  const skip = (page-1)*limit;
-  
-  
-  for(const field of excludeFields){
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-    delete filter[field]
-  }
+  const queryBuilder = new QueryBuilder(Tour.find(), query);
 
-  const searchQuery = {
-    $or: tourSearchableFields.map(field => ({
-    [field]: {$regex: searchTerm, $options: "i"}
-  }))
-  }
+  const tours = await queryBuilder.search(tourSearchableFields).filter().modelQuery;
 
-  const tours = await Tour.find(searchQuery).find(filter).sort(sortTerm).select(fieldsName).skip(skip).limit(limit);
+  // const totalTours = await Tour.countDocuments();
 
-  const totalTours = await Tour.countDocuments();
-  
-  const totalPage = Math.ceil(totalTours/limit);
+  // const totalPage = Math.ceil(totalTours / limit);
 
-  const meta = {
-    page: page, 
-    limit: limit,
-    total: totalTours,
-    totalPage: totalPage
-  }
-  
+  // const meta = {
+  //   page: page,
+  //   limit: limit,
+  //   total: totalTours,
+  //   totalPage: totalPage,
+  // };
+
   return {
     data: tours,
-    meta: meta
+    // meta: meta,
   };
 };
 
