@@ -1,6 +1,5 @@
-import { Query } from "mongoose";
 import AppError from "../../errorHelpers/appError";
-import { excludeFields, tourSearchableFields } from "./tour.constant";
+import { tourSearchableFields } from "./tour.constant";
 import { ITour, ITourType } from "./tour.interface";
 import { Tour, TourType } from "./tour.model";
 import httpStatusCodes from "http-status-codes";
@@ -105,7 +104,7 @@ const createTour = async (payload: ITour) => {
 const getAllTours = async (query: Record<string, string>) => {
   const queryBuilder = new QueryBuilder(Tour.find(), query);
 
-  const tours = await queryBuilder.search(tourSearchableFields).filter().sort().fields().paginate();
+  const tours = queryBuilder.search(tourSearchableFields).filter().sort().fields().paginate();
 
   // const meta = await queryBuilder.getMeta();
   const [data, meta] = await Promise.all([
