@@ -13,6 +13,7 @@ router.post("/register",
   );
 
 router.get("/all-users", checkAuth(ERole.ADMIN, ERole.SUPER_ADMIN), UserControllers.getAllUsers);
+
 router.patch("/:id", checkAuth(...Object.values(ERole)), UserControllers.updateUser)
 
 export const UserRoutes = router;
