@@ -1,0 +1,35 @@
+import { ISSLCommerz } from "./sslCommerz.interface";
+
+const sslPaymentInit = (payload: ISSLCommerz) =>{
+  const data = {
+    store_id: ,
+    store_passwd: ,
+    total_amount: ,
+    currency: ,
+    tran_id: ,
+    success_url: ,
+    fail_url: ,
+    cancel_url: ,
+    cus_name: ,
+    cus_email: ,
+    cus_add1: ,
+    cus_add2: ,
+    cus_city: ,
+    cus_state: ,
+    cus_postcode: ,
+    cus_country: ,
+    cus_phone: ,
+    cus_fax: ,
+    ship_name: ,
+    ship_add1: ,
+    ship_add2: ,
+    ship_city: ,
+    ship_state: ,
+    ship_postcode: ,
+    ship_country: ,
+    multi_card_name: ,
+    value_b: ,
+    value_c: ,
+    value_d: ,
+  }
+}
