@@ -18,7 +18,7 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
   session.startTransaction();
 
   try {
-    const user = await User.findById(userId, session);
+    const user = await User.findById(userId);
 
     if (!user?.phone || !user?.address) {
       throw new AppError(
@@ -27,7 +27,7 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
       );
     }
 
-    const tour = await Tour.findById(payload.tour, session).select("costFrom");
+    const tour = await Tour.findById(payload.tour).select("costFrom");
 
     if (!tour?.costFrom) {
       throw new AppError(httpStatusCodes.BAD_REQUEST, "No tour cost found.");
@@ -35,18 +35,18 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
 
     const amount = Number(tour.costFrom) * Number(payload.guestCount);
 
-    const booking = await Booking.create({
+    const booking = await Booking.create([{
       user: userId,
       status: EBookingStatus.PENDING,
       ...payload,
-    }, {session});
+    }], {session});
 
-    const payment = await Payment.create({
+    const payment = await Payment.create([{
       booking: booking[0]._id,
       status: EPaymentStatus.UNPAID,
       transactionId: transactionId,
       amount: amount,
-    }, {session});
+    }], {session});
 
     const updatedBooking = await Booking.findByIdAndUpdate(
       booking[0]._id,
@@ -57,13 +57,19 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
       .populate("tour", "title, costFrom")
       .populate("payment");
     
-    session.commitTransaction();
+    await session.commitTransaction();  //transaction
     session.endSession();
 
     return updatedBooking;
-  } catch (error) {
-    await session.abortTransaction();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    await session.abortTransaction();  //rollback
     session.endSession();
+
+    // ❌❌
+    // throw new AppError(httpStatusCodes.BAD_REQUEST, "kkkkkkkkkkl")
+    // ✅✅
+    throw error;
   }
 };
 
