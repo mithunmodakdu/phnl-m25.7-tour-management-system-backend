@@ -58,15 +58,33 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
       .populate("tour", "title, costFrom")
       .populate("payment");
     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userName = (updatedBooking?.user as any).name;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userEmail = (updatedBooking?.user as any).email;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userPhone = (updatedBooking?.user as any).Phone;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userAddress = (updatedBooking?.user as any).address;
+
     const sslPayload = {
-      
+      name: userName,
+      email: userEmail,
+      phoneNumber: userPhone,
+      address: userAddress,
+      amount: amount,
+      transactionId: transactionId
     }
-    const sslPayment = await sslService.sslPaymentInit();
+    const sslPayment = await sslService.sslPaymentInit(sslPayload);
+    console.log(sslPayment)
 
     await session.commitTransaction();  //transaction
     session.endSession();
 
-    return updatedBooking;
+    return {
+      booking: updatedBooking,
+      payment: sslPayment
+    };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     await session.abortTransaction();  //rollback
