@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import AppError from "../../errorHelpers/appError";
 import { User } from "../user/user.model";
 import { EBookingStatus, IBooking } from "./booking.interface";
@@ -58,13 +59,9 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
       .populate("tour", "title, costFrom")
       .populate("payment");
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userName = (updatedBooking?.user as any).name;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userEmail = (updatedBooking?.user as any).email;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userPhone = (updatedBooking?.user as any).Phone;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userAddress = (updatedBooking?.user as any).address;
 
     const sslPayload = {
@@ -83,7 +80,7 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
 
     return {
       booking: updatedBooking,
-      payment: sslPayment
+      paymentURL: sslPayment.GatewayPageURL
     };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {

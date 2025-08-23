@@ -1,8 +1,6 @@
 import { envVars } from "../config/env";
-import AppError from "../errorHelpers/appError";
 import { ISSLCommerz } from "./sslCommerz.interface";
 import axios from "axios";
-import httpStatusCodes from "http-status-codes"
 
 const sslPaymentInit = async (payload: ISSLCommerz) => {
   try {
@@ -12,9 +10,9 @@ const sslPaymentInit = async (payload: ISSLCommerz) => {
       total_amount: payload.amount,
       currency: "BDT",
       tran_id: payload.transactionId,
-      success_url: envVars.SSL.SSL_SUCCESS_BACKEND_URL,
-      fail_url: envVars.SSL.SSL_FAIL_BACKEND_URL,
-      cancel_url: envVars.SSL.SSL_CANCEL_BACKEND_URL,
+      success_url: `${envVars.SSL.SSL_SUCCESS_BACKEND_URL}?transactionId=${payload.transactionId}&amount=${payload.amount}&status=success`,
+      fail_url: `${envVars.SSL.SSL_FAIL_BACKEND_URL}?transactionId=${payload.transactionId}&amount=${payload.amount}&status=failed`,
+      cancel_url: `${envVars.SSL.SSL_CANCEL_BACKEND_URL}?transactionId=${payload.transactionId}&amount=${payload.amount}&status=cancelled`,
       shipping_method: "N/A",
       product_name: "Tour",
       product_category: "Service",
@@ -50,7 +48,7 @@ const sslPaymentInit = async (payload: ISSLCommerz) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
       console.log(error)
-      throw new AppError(httpStatusCodes.BAD_REQUEST, error.message)
+      throw error;
   }
 };
 
