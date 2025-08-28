@@ -46,6 +46,7 @@ const deleteTourType = async (id: string) => {
 
 // :::: Tour ::::
 const createTour = async (payload: ITour) => {
+
   const existingTour = await Tour.findOne({ title: payload.title });
 
   if (existingTour) {
@@ -120,8 +121,15 @@ const getAllTours = async (query: Record<string, string>) => {
 
 const updateTour = async (id: string, payload: Partial<ITour>) => {
   const existingTour = await Tour.findById(id);
+
   if (!existingTour) {
     throw new AppError(httpStatusCodes.NOT_FOUND, "This tour not found.");
+  }
+
+  if(payload.images && payload.images.length > 0 && existingTour.images && existingTour.images.length > 0){
+    
+    payload.images = [...payload.images, ...existingTour.images];
+    
   }
 
   const updatedTour = await Tour.findByIdAndUpdate(id, payload, { new: true });
