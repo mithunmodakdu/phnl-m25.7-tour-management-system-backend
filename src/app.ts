@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, urlencoded } from "express";
 import cors from "cors";
 import { router } from "./app/routes";
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
@@ -19,6 +19,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 app.use(cors());
 
 app.use("/api/v1", router);
