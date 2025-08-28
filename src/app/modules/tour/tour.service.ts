@@ -46,6 +46,7 @@ const deleteTourType = async (id: string) => {
 
 // :::: Tour ::::
 const createTour = async (payload: ITour) => {
+  
   const existingTour = await Tour.findOne({ title: payload.title });
 
   if (existingTour) {
