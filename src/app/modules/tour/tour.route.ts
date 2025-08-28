@@ -15,12 +15,15 @@ router.post("/create-tour-type",
   validateRequest(createTourTypeZodSchema),
   TourControllers.createTourType
 )
+
 router.get("/tour-types", TourControllers.getAllTourTypes);
+
 router.patch("/tour-types/:id",
   checkAuth(ERole.SUPER_ADMIN, ERole.ADMIN),
   validateRequest(updateTourTypeZodSchema),
   TourControllers.updateTourType
 )
+
 router.delete("/tour-types/:id", 
   checkAuth(ERole.SUPER_ADMIN, ERole.ADMIN),
   TourControllers.deleteTourType
@@ -34,12 +37,16 @@ router.post("/create",
   validateRequest(createTourZodSchema),
   TourControllers.createTour
 );
+
 router.get("/", TourControllers.getAllTours);
+
 router.patch("/:id", 
   checkAuth(ERole.SUPER_ADMIN, ERole.ADMIN),
+  multerUpload.array("files"),
   validateRequest(createTourZodSchema),
   TourControllers.updateTour
 );
+
 router.delete("/:id", 
   checkAuth(ERole.SUPER_ADMIN, ERole.ADMIN),
   TourControllers.deleteTour

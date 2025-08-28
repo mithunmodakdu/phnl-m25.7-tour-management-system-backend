@@ -14,13 +14,18 @@ router.post("/create",
   validateRequest(createDivisionZodSchema),
   DivisionControllers.createDivision
 )
+
 router.get("/", DivisionControllers.getAllDivisions);
+
 router.get("/:slug", DivisionControllers.getSingleDivision);
+
 router.patch("/:id", 
   checkAuth(ERole.SUPER_ADMIN, ERole.ADMIN),
+  multerUpload.single("file"),
   validateRequest(updateDivisionZodSchema),
   DivisionControllers.updateDivision
 );
+
 router.delete("/:id",
   checkAuth(ERole.SUPER_ADMIN, ERole.ADMIN),
   DivisionControllers.deleteDivision
