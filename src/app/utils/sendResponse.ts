@@ -2,7 +2,10 @@ import { Response } from "express";
 import { success } from "zod";
 
 interface IMeta {
-  total: number
+  page?: number;
+  limit?: number;
+  totalPage?: number;
+  total: number;
 }
 
 interface IResponse<T> {

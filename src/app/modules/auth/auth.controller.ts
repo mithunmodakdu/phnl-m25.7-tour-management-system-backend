@@ -121,6 +121,27 @@ const logout = catchAsync(
   }
 );
 
+const changePassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const newPassword = req.body.newPassword;
+    const oldPassword = req.body.oldPassword;
+    const decodedToken = req.user;
+
+    await AuthServices.resetPassword(
+      oldPassword,
+      newPassword,
+      decodedToken as JwtPayload
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatusCodes.OK,
+      success: true,
+      message: "Password changed successfully.",
+      data: null,
+    });
+  }
+);
+
 const resetPassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const newPassword = req.body.newPassword;
@@ -137,6 +158,22 @@ const resetPassword = catchAsync(
       statusCode: httpStatusCodes.OK,
       success: true,
       message: "Password changed successfully.",
+      data: null,
+    });
+  }
+);
+
+const setPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user as JwtPayload;
+    const {password} = req.body;
+
+    await AuthServices.setPassword(decodedToken.userId, password);
+
+    sendResponse(res, {
+      statusCode: httpStatusCodes.OK,
+      success: true,
+      message: "Password set successfully.",
       data: null,
     });
   }
@@ -165,6 +202,8 @@ export const AuthControllers = {
   credentialsLogin,
   getNewAccessToken,
   logout,
+  changePassword,
   resetPassword,
+  setPassword,
   googleCallbackController,
 };
