@@ -2,9 +2,9 @@ import { Response } from "express";
 import { success } from "zod";
 
 interface IMeta {
-  page: number;
-  limit: number;
-  totalPage: number;
+  page?: number;
+  limit?: number;
+  totalPage?: number;
   total: number;
 }
 
