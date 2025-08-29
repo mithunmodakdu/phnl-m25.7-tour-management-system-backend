@@ -3,7 +3,7 @@ import { TourControllers } from "./tour.controller";
 import { checkAuth } from "../../middlewares/checkAuth";
 import { ERole } from "../user/user.interface";
 import { validateRequest } from "../../middlewares/validateRequest";
-import { createTourTypeZodSchema, createTourZodSchema, updateTourTypeZodSchema } from "./tour.validation";
+import { createTourTypeZodSchema, createTourZodSchema, updateTourTypeZodSchema, updateTourZodSchema } from "./tour.validation";
 import { multerUpload } from "../../config/multer.config";
 
 
@@ -43,7 +43,7 @@ router.get("/", TourControllers.getAllTours);
 router.patch("/:id", 
   checkAuth(ERole.SUPER_ADMIN, ERole.ADMIN),
   multerUpload.array("files"),
-  validateRequest(createTourZodSchema),
+  validateRequest(updateTourZodSchema),
   TourControllers.updateTour
 );
 
