@@ -6,9 +6,10 @@ import {
 } from "passport-google-oauth20";
 import { envVars } from "./env";
 import { User } from "../modules/user/user.model";
-import { ERole } from "../modules/user/user.interface";
+import { EIsActive, ERole } from "../modules/user/user.interface";
 import { Strategy as LocalStrategy } from "passport-local";
 import bcryptjs from "bcryptjs";
+import httpStatusCodes from "http-status-codes";
 
 passport.use(
   new LocalStrategy(
@@ -21,31 +22,53 @@ passport.use(
         const isUserExist = await User.findOne({ email });
 
         if (!isUserExist) {
-          return done(null, false, {message: "User does not exist"})
+          return done(null, false, { message: "User does not exist" });
+        }
+
+        // if (isUserExist.isVerified) {
+        //   return done("User is not verified");
+        // }
+
+        if (
+          isUserExist.isActive === EIsActive.INACTIVE ||
+          isUserExist.isActive === EIsActive.BLOCKED
+        ) {
+          return done(`User is ${isUserExist.isActive}`);
+        }
+
+        if (isUserExist.isDeleted) {
+          return done("User is deleted");
         }
 
         // if (!isUserExist) {
         //   return done("User does not exist")
         // }
 
-        const isGoogleAuthenticated = isUserExist.auths.some(providerObjects => providerObjects.provider === "google");
+        const isGoogleAuthenticated = isUserExist.auths.some(
+          (providerObjects) => providerObjects.provider === "google"
+        );
 
-        if(isGoogleAuthenticated && !isUserExist.password){
-          return done(null, false, {message: "You have authenticated through google login. If you want to login with credentials, at first you have to login with google and set your password, then you can login with email and password."})
+        if (isGoogleAuthenticated && !isUserExist.password) {
+          return done(null, false, {
+            message:
+              "You have authenticated through google login. If you want to login with credentials, at first you have to login with google and set your password, then you can login with email and password.",
+          });
         }
 
         // if(isGoogleAuthenticated){
         //   return done("You have authenticated through google login. If you want to login with credentials, at first you have to login with google and set your password, then you can login with email and password.")
         // }
 
-        const isPasswordMatched = await bcryptjs.compare(password, isUserExist?.password as string);
+        const isPasswordMatched = await bcryptjs.compare(
+          password,
+          isUserExist?.password as string
+        );
 
-        if(!isPasswordMatched){
-          return done(null, false, {message: "Password does not match."})
+        if (!isPasswordMatched) {
+          return done(null, false, { message: "Password does not match." });
         }
 
         return done(null, isUserExist);
-
       } catch (error) {
         console.log(error);
         done(error);
@@ -69,7 +92,7 @@ passport.use(
     ) => {
       try {
         const email = profile.emails?.[0].value;
-        
+
         if (!email) {
           return done(null, false, { message: "No email found." });
         }
