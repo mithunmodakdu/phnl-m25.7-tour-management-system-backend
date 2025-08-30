@@ -19,6 +19,8 @@ router.post("/reset-password", checkAuth(...Object.values(ERole))  , AuthControl
 
 router.post("/set-password", checkAuth(...Object.values(ERole))  , AuthControllers.setPassword);
 
+router.post("/forget-password", AuthControllers.setPassword);
+
 router.get("/google", async(req: Request, res: Response, next: NextFunction) =>{
   const redirect = req.query.redirect || "/";
   passport.authenticate("google", {scope: ["profile", "email"], state: redirect as string})(req, res, next)
