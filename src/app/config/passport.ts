@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import passport from "passport";
 import {
   Strategy as GoogleStrategy,
@@ -9,7 +10,7 @@ import { User } from "../modules/user/user.model";
 import { EIsActive, ERole } from "../modules/user/user.interface";
 import { Strategy as LocalStrategy } from "passport-local";
 import bcryptjs from "bcryptjs";
-import httpStatusCodes from "http-status-codes";
+
 
 passport.use(
   new LocalStrategy(
@@ -25,9 +26,9 @@ passport.use(
           return done(null, false, { message: "User does not exist" });
         }
 
-        // if (isUserExist.isVerified) {
-        //   return done("User is not verified");
-        // }
+        if (!isUserExist.isVerified) {
+          return done("User is not verified");
+        }
 
         if (
           isUserExist.isActive === EIsActive.INACTIVE ||
@@ -97,10 +98,24 @@ passport.use(
           return done(null, false, { message: "No email found." });
         }
 
-        let user = await User.findOne({ email });
+        let isUserExist = await User.findOne({ email });
 
-        if (!user) {
-          user = await User.create({
+        if (isUserExist && !isUserExist.isVerified) {
+          return done(null, false, {message: "User is not verified"});
+        }
+
+        if ( isUserExist && (isUserExist.isActive === EIsActive.INACTIVE ||
+          isUserExist.isActive === EIsActive.BLOCKED)
+        ) {
+          return done( null, false, {message:`User is ${isUserExist.isActive}`});
+        }
+
+        if (isUserExist && isUserExist.isDeleted) {
+          return done(null, false, {message:"User is deleted"});
+        }
+
+        if (!isUserExist) {
+          isUserExist = await User.create({
             email,
             name: profile.displayName,
             picture: profile.photos?.[0].value,
@@ -115,7 +130,7 @@ passport.use(
           });
         }
 
-        return done(null, user);
+        return done(null, isUserExist);
       } catch (error) {
         console.log("Google strategy error", error);
         return done(error);
