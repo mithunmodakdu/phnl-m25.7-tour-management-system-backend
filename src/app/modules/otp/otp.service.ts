@@ -3,6 +3,7 @@ import { redisClient } from "../../config/redis.config";
 import { sendEmail } from "../../utils/sendEmail";
 import AppError from "../../errorHelpers/appError";
 import { User } from "../user/user.model";
+import httpStatusCodes from "http-status-codes";
 
 const OTP_EXPIRATION = 2 * 60  //2 minutes * 60 = 120 seconds
 
@@ -21,6 +22,16 @@ const generateOTP = (length = 6) =>{
 }
 
 const sendOTP = async(name: string, email: string) =>{
+  const user = await User.findOne({email});
+
+  if(!user){
+    throw new AppError(httpStatusCodes.NOT_FOUND, "User Not Found");
+  }
+
+  if(user.isVerified){
+    throw new AppError(httpStatusCodes.BAD_REQUEST, "You are already verified.")
+  }
+  
   const otp = generateOTP();
 
   const redisKey = `otp:${email}`;
@@ -47,6 +58,16 @@ const sendOTP = async(name: string, email: string) =>{
 }
 
 const verifyOTP = async(email: string, otp: string) =>{
+  const user = await User.findOne({email});
+
+  if(!user){
+    throw new AppError(httpStatusCodes.NOT_FOUND, "User Not Found");
+  }
+
+  if(user.isVerified){
+    throw new AppError(httpStatusCodes.BAD_REQUEST, "You are already verified.")
+  }
+
   const redisKey = `otp:${email}`;
 
   const savedOtp = await redisClient.get(redisKey);
