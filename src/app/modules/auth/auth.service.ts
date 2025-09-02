@@ -63,7 +63,7 @@ const changePassword = async (
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const isOldPasswordMatched = await becryptjs.compare(
     oldPassword,
-    user!.password as string
+    user?.password as string
   );
 
   if (!isOldPasswordMatched) {
