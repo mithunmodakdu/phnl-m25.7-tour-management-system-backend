@@ -1,27 +1,89 @@
+import { EIsActive } from "../user/user.interface";
+import { User } from "../user/user.model";
+
+const now = new Date();
+const sevenDaysAgo = new Date(now).setDate(now.getDate() - 7);
+const thirtyDaysAgo = new Date(now).setDate(now.getDate() - 30);
+console.log(new Date(sevenDaysAgo));
+console.log(new Date(thirtyDaysAgo));
 
 const getUserStats = async () => {
-    return {}
-}
+  const totalUsersPromise = User.countDocuments();
+  const totalActiveUsersPromise = User.countDocuments({
+    isActive: EIsActive.ACTIVE,
+  });
+  const totalInActiveUsersPromise = User.countDocuments({
+    isActive: EIsActive.INACTIVE,
+  });
+  const totalBlockedUsersPromise = User.countDocuments({
+    isActive: EIsActive.BLOCKED,
+  });
+
+  const newUsersInLastSevenDaysPromise = User.countDocuments({
+        createdAt: { $gte: sevenDaysAgo }
+    });
+
+  const newUsersInLastThirtyDaysPromise = User.countDocuments({
+        createdAt: { $gte: thirtyDaysAgo }
+    });
+
+  const usersByRolePromise = User.aggregate([
+    //stage-1: group users by role & count total users in each group
+    {
+        $group: {
+            _id: "$role",
+            count: { $sum: 1}
+        }
+    }
+  ]);
+
+
+
+  const [
+    totalUsers, 
+    totalActiveUsers, 
+    totalInActiveUsers, 
+    totalBlockedUsers,
+    newUsersInLastSevenDays,
+    newUsersInLastThirtyDays,
+    usersByRole
+
+    ] = await Promise.all([
+      totalUsersPromise,
+      totalActiveUsersPromise,
+      totalInActiveUsersPromise,
+      totalBlockedUsersPromise,
+      newUsersInLastSevenDaysPromise,
+      newUsersInLastThirtyDaysPromise,
+      usersByRolePromise
+    ]);
+
+  return {
+    totalUsers, 
+    totalActiveUsers, 
+    totalInActiveUsers, 
+    totalBlockedUsers,
+    newUsersInLastSevenDays,
+    newUsersInLastThirtyDays,
+    usersByRole
+  };
+};
 
 const getTourStats = async () => {
-    return {}
-}
+  return {};
+};
 
 const getBookingStats = async () => {
-    
-    return {}
-}
+  return {};
+};
 
 const getPaymentStats = async () => {
-
-    
-    return { }
-}
-
+  return {};
+};
 
 export const StatsService = {
-    getBookingStats,
-    getPaymentStats,
-    getTourStats,
-    getUserStats
-}
+  getBookingStats,
+  getPaymentStats,
+  getTourStats,
+  getUserStats,
+};
