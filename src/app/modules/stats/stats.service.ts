@@ -4,10 +4,9 @@ import { EIsActive } from "../user/user.interface";
 import { User } from "../user/user.model";
 
 const now = new Date();
-const sevenDaysAgo = new Date(now).setDate(now.getDate() - 7);
-const thirtyDaysAgo = new Date(now).setDate(now.getDate() - 30);
-console.log(new Date(sevenDaysAgo));
-console.log(new Date(thirtyDaysAgo));
+const sevenDaysAgo = new Date(now).setDate(now.getDate() - 7);   //output in milliseconds
+const thirtyDaysAgo = new Date(now).setDate(now.getDate() - 30); //output in milliseconds
+
 
 const getUserStats = async () => {
   const totalUsersPromise = User.countDocuments();
@@ -212,7 +211,83 @@ const getTourStats = async () => {
 };
 
 const getBookingStats = async () => {
-  return {};
+  const totalBookingsPromise = Booking.countDocuments();
+
+  const totalBookingsByStatusPromise = Booking.aggregate([
+
+    //stage-1: group by status
+    {
+        $group: {
+            _id: "$status",
+            count: {$sum: 1}
+        }
+    }
+  ]);
+
+  const bookingPerTourPromise = Booking.aggregate([
+    //stage-1: group stage
+    {
+        $group: {
+            _id: "$tour",
+            bookingCount: { $sum: 1}
+        }
+    },
+
+    //stage-2: sort stage
+    {
+        $sort: {bookingCount: -1}
+    },
+
+    //stage-3: limit stage
+    {
+        $limit: 10
+    },
+
+    //stage-4: lookup stage
+    {
+        $lookup: {
+            from: "tours",
+            localField: "_id",
+            foreignField: "_id",
+            as: "tour"
+        }
+    },
+
+    //stage-5: unwind stage
+    {
+        $unwind: "$tour"
+    },
+
+    //stage-6: project stage
+    {
+        $project: {
+            _id: 1,
+            bookingCount: 1,
+            "tour.title": 1,
+            "tour.slug": 1
+        }
+    }
+
+
+  ]);
+
+  const [
+    totalBookings,
+    totalBookingsByStatus,
+    bookingPerTour
+    
+
+  ] = await Promise.all([
+    totalBookingsPromise,
+    totalBookingsByStatusPromise,
+    bookingPerTourPromise
+  ]);
+
+  return {
+    totalBookings,
+    totalBookingsByStatus,
+    bookingPerTour
+  };
 };
 
 const getPaymentStats = async () => {
