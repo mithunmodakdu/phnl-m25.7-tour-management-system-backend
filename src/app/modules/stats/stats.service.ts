@@ -96,20 +96,61 @@ const getTourStats = async () => {
 
   ]);
 
+  const avgTourCostPromise = Tour.aggregate([
+    //stage-1: grouping all tours in a group, average the cost
+    {
+        $group: {
+            _id: null,
+            avgCostFrom: {$avg: "$costFrom"}
+        }
+    }  
+  ]);
+
+  const totalToursByDivisionPromise = Tour.aggregate([
+    //stage-1: connect tourType model using lookup
+    {
+        $lookup: {
+            from: "divisions",
+            localField: "division",
+            foreignField: "_id",
+            as: "division"
+        }
+    },
+
+    //stage-2: unwind array to object
+    {
+        $unwind: "$division"
+    },
+
+    //stage-3: grouping by type name
+    {
+        $group: {
+            _id: "$division.name",
+            count: { $sum: 1 }
+        }
+    }
+
+  ]);
+
   const [
     totalTours,
-    totalToursByTourType
+    totalToursByTourType,
+    avgTourCost,
+    totalToursByDivision
 
   ] = await Promise.all([
     totalToursPromise,
-    totalToursByTourTypePromise
-
+    totalToursByTourTypePromise,
+    avgTourCostPromise,
+    totalToursByDivisionPromise
   ]);
 
 
   return {
     totalTours,
-    totalToursByTourType
+    totalToursByTourType,
+    avgTourCost,
+    totalToursByDivision
   };
 };
 
