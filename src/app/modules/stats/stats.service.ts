@@ -79,7 +79,21 @@ const getTourStats = async () => {
             foreignField: "_id",
             as: "type"
         }
+    },
+
+    //stage-2: unwind array to object
+    {
+        $unwind: "$type"
+    },
+
+    //stage-3: grouping by type name
+    {
+        $group: {
+            _id: "$type.name",
+            count: { $sum: 1 }
+        }
     }
+
   ]);
 
   const [
