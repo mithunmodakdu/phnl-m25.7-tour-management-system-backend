@@ -4,6 +4,7 @@ import { PaymentServices } from "./payment.service";
 import { envVars } from "../../config/env";
 import { sendResponse } from "../../utils/sendResponse";
 import httpStatusCodes from "http-status-codes";
+import { sslService } from "../../sslCommerz/sslCommerz.service";
 
 const initPayment = catchAsync(async(req: Request, res: Response)=>{
   const bookingId = req.params.bookingId;
@@ -53,10 +54,23 @@ const getInvoiceDownloadUrl = catchAsync(async(req: Request, res: Response) =>{
   
 })
 
+const validatePayment = catchAsync(async(req: Request, res: Response) =>{
+  console.log("SSLCommerz IPN URL Body", req.body)
+  await sslService.validatePayment(req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Payment validated successfully",
+    data: null
+  })
+  
+})
+
 export const PaymentController = {
   initPayment,
   successPayment,
   failedPayment,
   cancelledPayment,
-  getInvoiceDownloadUrl
+  getInvoiceDownloadUrl,
+  validatePayment
 }
