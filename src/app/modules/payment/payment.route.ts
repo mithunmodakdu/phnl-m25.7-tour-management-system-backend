@@ -5,10 +5,11 @@ import { ERole } from "../user/user.interface";
 
 const router = Router();
 
-router.post("/init-payment/:bookingId", PaymentController.initPayment)
-router.post("/success", PaymentController.successPayment)
-router.post("/failed", PaymentController.failedPayment )
-router.post("/cancelled", PaymentController.cancelledPayment )
-router.get("/invoice/:paymentId", checkAuth(...Object.values(ERole)), PaymentController.getInvoiceDownloadUrl)
+router.post("/init-payment/:bookingId", PaymentController.initPayment);
+router.post("/success", PaymentController.successPayment);
+router.post("/failed", PaymentController.failedPayment );
+router.post("/cancelled", PaymentController.cancelledPayment );
+router.get("/invoice/:paymentId", checkAuth(...Object.values(ERole)), PaymentController.getInvoiceDownloadUrl);
+router.post("/validate-payment", PaymentController.validatePayment);
 
 export const PaymentRoutes = router;
