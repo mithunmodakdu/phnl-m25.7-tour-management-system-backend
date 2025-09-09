@@ -11,7 +11,7 @@ let server: Server;
 const startServer = async () => {
   try {
     await mongoose.connect(
-      "mongodb+srv://tourManagement:5SWZuOQohiWbm1zM@cluster0.mcynqnr.mongodb.net/tourManagementDB?retryWrites=true&w=majority&appName=Cluster0"
+      envVars.DB_URL
     );
 
     console.log("Successfully connected to database");
